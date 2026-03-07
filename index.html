@@ -248,6 +248,127 @@
         .planet-label.saturn { border-color: rgba(244, 213, 158, 0.6); }
         .planet-label.uranus { border-color: rgba(114, 214, 229, 0.6); }
         .planet-label.neptune { border-color: rgba(75, 112, 221, 0.6); }
+        .planet-label.moon { border-color: rgba(200, 200, 200, 0.6); }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            /* Title Boxes */
+            .title-box {
+                left: 10px;
+            }
+
+            .title-box.performance {
+                top: 10px;
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+
+            .title-box.heliocentric {
+                top: 50px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            /* Info Panel */
+            #info-panel {
+                top: 10px;
+                right: 10px;
+                width: 200px;
+                padding: 12px;
+            }
+
+            #info-panel h2 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+
+            #info-panel .info-item {
+                font-size: 0.8em;
+                margin: 8px 0;
+            }
+
+            #info-panel .fact {
+                font-size: 0.8em;
+                padding: 8px;
+            }
+
+            /* Pause Button */
+            #pause-btn {
+                top: 10px;
+                padding: 8px 20px;
+                font-size: 12px;
+            }
+
+            /* Controls Help */
+            #controls-help {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px 12px;
+                font-size: 0.75em;
+            }
+
+            /* Planet Labels */
+            .planet-label {
+                font-size: 8px;
+                padding: 2px 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Title Boxes */
+            .title-box.performance {
+                top: 5px;
+                padding: 4px 8px;
+                font-size: 8px;
+            }
+
+            .title-box.heliocentric {
+                top: 40px;
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+
+            /* Info Panel */
+            #info-panel {
+                top: auto;
+                bottom: 60px;
+                right: 5px;
+                left: 5px;
+                width: auto;
+                max-width: calc(100% - 10px);
+                padding: 10px;
+            }
+
+            #info-panel h2 {
+                font-size: 1em;
+            }
+
+            #info-panel .info-item {
+                font-size: 0.75em;
+            }
+
+            #info-panel .fact {
+                font-size: 0.75em;
+            }
+
+            /* Pause Button */
+            #pause-btn {
+                top: 5px;
+                padding: 6px 15px;
+                font-size: 10px;
+            }
+
+            /* Controls Help - hide on very small screens */
+            #controls-help {
+                display: none;
+            }
+
+            /* Planet Labels */
+            .planet-label {
+                font-size: 7px;
+                padding: 1px 3px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -294,6 +415,7 @@
     <div id="label-saturn" class="planet-label saturn">Saturn</div>
     <div id="label-uranus" class="planet-label uranus">Uranus</div>
     <div id="label-neptune" class="planet-label neptune">Neptune</div>
+    <div id="label-moon" class="planet-label moon">Moon</div>
 
     <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -424,6 +546,22 @@
                     diameter: "49,244 km",
                     orbitalPeriod: "165 Earth years",
                     fact: "Neptune has the strongest winds in the solar system - up to 2,100 km/h!"
+                }
+            },
+            moon: {
+                name: "Moon",
+                radius: 0.4,
+                distance: 4,
+                orbitalSpeed: 0.03,
+                texture: "https://www.solarsystemscope.com/textures/download/2k_moon.jpg",
+                rotationSpeed: 0.01,
+                isMoon: true,
+                parentPlanet: "earth",
+                info: {
+                    distance: "384,400 km from Earth",
+                    diameter: "3,474 km",
+                    orbitalPeriod: "27.3 days",
+                    fact: "The Moon is Earth's only natural satellite and is the fifth largest moon in the solar system!"
                 }
             }
         };
@@ -595,7 +733,8 @@
             jupiter: 0xd8ca9d,
             saturn: 0xf4d59e,
             uranus: 0x72d6e5,
-            neptune: 0x4b70dd
+            neptune: 0x4b70dd,
+            moon: 0xcccccc
         };
 
         // Atmosphere colors
@@ -790,7 +929,8 @@
             jupiter: document.getElementById('label-jupiter'),
             saturn: document.getElementById('label-saturn'),
             uranus: document.getElementById('label-uranus'),
-            neptune: document.getElementById('label-neptune')
+            neptune: document.getElementById('label-neptune'),
+            moon: document.getElementById('label-moon')
         };
 
         // Vector for position calculations
@@ -939,13 +1079,18 @@
             pauseBtn.classList.toggle('paused', isPaused);
         });
 
+        // Find Earth for Moon orbit reference
+        let earthPlanet = null;
+        
         function animate() {
             requestAnimationFrame(animate);
             
             // Only update planet positions if not paused
             if (!isPaused) {
-                // Update planet positions
+                // First pass: update regular planets
                 planetObjects.forEach(obj => {
+                    if (obj.data.isMoon) return; // Skip moons in first pass
+                    
                     // Update orbital angle
                     obj.angle += obj.data.orbitalSpeed;
                     
@@ -956,6 +1101,31 @@
                     obj.group.position.set(x, 0, z);
                     
                     // Rotate planet on axis
+                    obj.planet.rotation.y += obj.data.rotationSpeed;
+                    
+                    // Store Earth reference for Moon
+                    if (obj.data.name === "Earth") {
+                        earthPlanet = obj;
+                    }
+                });
+                
+                // Second pass: update moons (orbits around parent planet)
+                planetObjects.forEach(obj => {
+                    if (!obj.data.isMoon || !earthPlanet) return;
+                    
+                    // Update orbital angle
+                    obj.angle += obj.data.orbitalSpeed;
+                    
+                    // Calculate position relative to parent planet
+                    const parentX = earthPlanet.group.position.x;
+                    const parentZ = earthPlanet.group.position.z;
+                    
+                    const x = parentX + obj.data.distance * Math.cos(obj.angle);
+                    const z = parentZ + obj.data.distance * Math.sin(obj.angle);
+                    
+                    obj.group.position.set(x, 0, z);
+                    
+                    // Rotate moon on axis
                     obj.planet.rotation.y += obj.data.rotationSpeed;
                 });
                 
