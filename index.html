@@ -292,9 +292,11 @@
                 padding: 8px;
             }
 
-            /* Pause Button */
+            /* Pause Button - below title boxes on mobile */
             #pause-btn {
-                top: 10px;
+                top: 90px;
+                left: 10px;
+                transform: none;
                 padding: 8px 20px;
                 font-size: 12px;
             }
@@ -351,9 +353,11 @@
                 font-size: 0.75em;
             }
 
-            /* Pause Button */
+            /* Pause Button - below title boxes on mobile */
             #pause-btn {
-                top: 5px;
+                top: 70px;
+                left: 10px;
+                transform: none;
                 padding: 6px 15px;
                 font-size: 10px;
             }
@@ -1013,6 +1017,18 @@
         }
 
         window.addEventListener('click', onMouseClick);
+        
+        // Touch support for mobile
+        window.addEventListener('touchend', (event) => {
+            if (event.changedTouches.length > 0) {
+                const touch = event.changedTouches[0];
+                // Create a synthetic click event
+                onMouseClick({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+            }
+        });
 
         // =============================================================================
         // INFORMATION PANEL
