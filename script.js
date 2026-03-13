@@ -13,8 +13,10 @@ const PLANETS = {
             distance: "57.9 million km",
             diameter: "4,879 km",
             orbitalPeriod: "88 Earth days",
-            fact: "Mercury is the smallest planet in our solar system and closest to the Sun."
-        }
+            fact: "Mercury is the smallest planet in our solar system and closest to the Sun.",
+            moon: 0 
+        },
+        texture: 'Images/mercury.jpg'
     },
     venus: {
         name: "Venus",
@@ -26,8 +28,10 @@ const PLANETS = {
             distance: "108.2 million km",
             diameter: "12,104 km",
             orbitalPeriod: "225 Earth days",
-            fact: "Venus rotates backwards compared to most planets - the Sun rises in the west!"
-        }
+            fact: "Venus rotates backwards compared to most planets - the Sun rises in the west!",
+            moon:  0
+        },
+        texture: 'Images/venus_land.jpg'
     },
     earth: {
         name: "Earth",
@@ -40,8 +44,10 @@ const PLANETS = {
             distance: "149.6 million km",
             diameter: "12,742 km",
             orbitalPeriod: "365.25 days",
-            fact: "Earth is the only planet known to support life - at least that we know of!"
-        }
+            fact: "Earth is the only planet known to support life - at least that we know of!",
+            moon: 1
+        },
+        texture: 'Images/earth.jpg'
     },
     mars: {
         name: "Mars",
@@ -53,12 +59,14 @@ const PLANETS = {
             distance: "227.9 million km",
             diameter: "6,779 km",
             orbitalPeriod: "687 Earth days",
-            fact: "Mars has the largest volcano in the solar system - Olympus Mons!"
-        }
+            fact: "Mars has the largest volcano in the solar system - Olympus Mons!",
+            moon: 2
+        },
+        texture: 'Images/mars.jpg'
     },
     jupiter: {
         name: "Jupiter",
-        radius: 4.5,
+        radius: 5,
         distance: 60,
         orbitalSpeed: 0.004,
         rotationSpeed: 0.08,
@@ -67,8 +75,10 @@ const PLANETS = {
             distance: "778.5 million km",
             diameter: "139,820 km",
             orbitalPeriod: "12 Earth years",
-            fact: "Jupiter is the largest planet - more than twice as massive as all other planets combined!"
-        }
+            fact: "Jupiter is the largest planet - more than twice as massive as all other planets combined!",
+            moon: [95,97]
+        },
+        texture: 'Images/jupiter.jpg'
     },
     saturn: {
         name: "Saturn",
@@ -83,8 +93,10 @@ const PLANETS = {
             distance: "1.4 billion km",
             diameter: "116,460 km",
             orbitalPeriod: "29 Earth years",
-            fact: "Saturn's rings are made mostly of ice particles and rock debris!"
-        }
+            fact: "Saturn's rings are made mostly of ice particles and rock debris!",
+            moon: [146,274]
+        },
+        texture: 'Images/saturn.jpg'
     },
     uranus: {
         name: "Uranus",
@@ -96,8 +108,10 @@ const PLANETS = {
             distance: "2.9 billion km",
             diameter: "50,724 km",
             orbitalPeriod: "84 Earth years",
-            fact: "Uranus rotates on its side - like a rolling ball!"
-        }
+            fact: "Uranus rotates on its side - like a rolling ball!",
+            moon: [27,29]
+        },
+        texture: 'Images/uranus.jpg'
     },
     neptune: {
         name: "Neptune",
@@ -109,8 +123,10 @@ const PLANETS = {
             distance: "4.5 billion km",
             diameter: "49,244 km",
             orbitalPeriod: "165 Earth years",
-            fact: "Neptune has the strongest winds in the solar system - up to 2,100 km/h!"
-        }
+            fact: "Neptune has the strongest winds in the solar system - up to 2,100 km/h!",
+            moon:[14,16]
+        },
+        texture: 'Images/neptune.jpg'   
     },
     moon: {
         name: "Moon",
@@ -124,8 +140,9 @@ const PLANETS = {
             distance: "384,400 km from Earth",
             diameter: "3,474 km",
             orbitalPeriod: "27.3 days",
-            fact: "The Moon is Earth's only natural satellite and is the fifth largest moon in the solar system!"
-        }
+            fact: "The Moon is Earth's only natural satellite and is the fifth largest moon in the solar system!",
+        },
+        texture: 'Images/moon.jpg'
     }
 };
 
@@ -137,7 +154,8 @@ const SUN_INFO = {
         diameter: "1,392,700 km",
         orbitalPeriod: "N/A",
         fact: "The Sun contains 99.86% of all the mass in our solar system! It's about 4.6 billion years old."
-    }
+    },
+    texture: 'Images/sun.jpg'
 };
 
 // =============================================================================
@@ -149,7 +167,7 @@ const scene = new THREE.Scene();
 
 // Camera
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 100, 200);
+camera.position.set(0, 70, 180);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -162,27 +180,32 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.minDistance = 20;
-controls.maxDistance = 500;
+controls.maxDistance = 400;
 
 // =============================================================================
 // CREATE SUN - Enhanced Version
 // =============================================================================
 
 // Create Sun with basic material (no textures)
+const sunTextureLoader = new THREE.TextureLoader();
+const sunTexture = sunTextureLoader.load(SUN_INFO.texture);
+
 const sunGeometry = new THREE.SphereGeometry(8, 64, 64);
 const sunMaterial = new THREE.MeshBasicMaterial({
     color: 0xffdd00,
+    map: sunTexture
 });
+
 
 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
 scene.add(sun);
 
 // Multiple glow layers for realistic sun effect
 const glowColors = [
-    { radius: 9, color: 0xff4400, opacity: 0.4 },
-    { radius: 10, color: 0xff6600, opacity: 0.25 },
-    { radius: 12, color: 0xff8800, opacity: 0.15 },
-    { radius: 15, color: 0xffaa00, opacity: 0.08 }
+    { radius: 9, color: 0xff4400, opacity: 1 },
+    { radius: 10, color: 0xff6600, opacity: 0.5 },
+    { radius: 12, color: 0xff8800, opacity: 0.2 },
+    { radius: 15, color: 0xffaa00, opacity: 0.1 }
 ];
 
 glowColors.forEach(g => {
@@ -199,8 +222,8 @@ glowColors.forEach(g => {
 
 // Corona effect using sprites
 const coronaCanvas = document.createElement('canvas');
-coronaCanvas.width = 256;
-coronaCanvas.height = 256;
+coronaCanvas.width = 300;
+coronaCanvas.height = 300;
 const ctx = coronaCanvas.getContext('2d');
 const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 gradient.addColorStop(0, 'rgba(255, 200, 50, 1)');
@@ -217,11 +240,11 @@ const coronaMaterial = new THREE.SpriteMaterial({
     blending: THREE.AdditiveBlending 
 });
 const corona = new THREE.Sprite(coronaMaterial);
-corona.scale.set(40, 40, 1);
+corona.scale.set(40, 40, 0);
 sun.add(corona);
 
 // Sun light with better distribution
-const sunLight = new THREE.PointLight(0xfff0dd, 2.5, 400);
+const sunLight = new THREE.PointLight(0xffffff, 3, 400);
 sunLight.position.set(0, 0, 0);
 scene.add(sunLight);
 
@@ -235,7 +258,7 @@ scene.add(ambientLight);
 
 function createStarfield() {
     const starsGeometry = new THREE.BufferGeometry();
-    const starCount = 2000;
+    const starCount = 3000;
     const positions = new Float32Array(starCount * 3);
     
     for (let i = 0; i < starCount * 3; i += 3) {
@@ -252,9 +275,9 @@ function createStarfield() {
     starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     
     const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 1.5,
-        sizeAttenuation: true
+        color: 0xd9fff9,
+        size: 1,
+        sizeAttenuation: true,
     });
     
     const stars = new THREE.Points(starsGeometry, starsMaterial);
@@ -297,14 +320,17 @@ function createPlanet(key, data) {
     const planetGroup = new THREE.Group();
     
     // Create planet sphere with enhanced geometry (more segments for smoothness)
-    const geometry = new THREE.SphereGeometry(data.radius, 64, 64);
+    const geometry = new THREE.SphereGeometry(data.radius, 120, 120);
     
-    // Enhanced material with solid colors
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(data.texture)
+    
     const material = new THREE.MeshStandardMaterial({
         color: planetColors[key] || 0x888888,
-        roughness: 0.7,
-        metalness: 0.1,
-        flatShading: false
+        roughness: .8,
+        metalness: .4,
+        flatShading: false,
+        map: texture
     });
     
     const planet = new THREE.Mesh(geometry, material);
@@ -314,60 +340,63 @@ function createPlanet(key, data) {
 
     // Add atmosphere glow for certain planets
     if (atmosphereColors[key]) {
-        const atmosGeometry = new THREE.SphereGeometry(data.radius * 1.15, 32, 32);
+        const atmosGeometry = new THREE.SphereGeometry(data.radius * 1.15, 120, 120);
         const atmosMaterial = new THREE.MeshBasicMaterial({
             color: atmosphereColors[key],
             transparent: true,
-            opacity: 0.15,
+            opacity: 0.1,
             side: THREE.BackSide
         });
         const atmosphere = new THREE.Mesh(atmosGeometry, atmosMaterial);
         planetGroup.add(atmosphere);
         
         // Outer glow
-        const glowGeometry = new THREE.SphereGeometry(data.radius * 1.25, 32, 32);
+        const glowGeometry = new THREE.SphereGeometry(data.radius * 1.15, 64, 64);
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: atmosphereColors[key],
             transparent: true,
-            opacity: 0.08,
+            opacity: 0.1,
             side: THREE.BackSide
         });
         const glow = new THREE.Mesh(glowGeometry, glowMaterial);
         planetGroup.add(glow);
     }
     
-    // Add clouds for Earth
-    if (data.hasClouds) {
-        const cloudGeometry = new THREE.SphereGeometry(data.radius * 1.02, 32, 32);
-        const cloudMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.3,
-            roughness: 1,
-            metalness: 0
-        });
-        const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
-        planetGroup.add(clouds);
-    }
+//     // Add clouds for Earth
+//     if (data.hasClouds) {
+//         const cloudGeometry = new THREE.SphereGeometry(data.radius * 1.02, 32, 32);
+//         const cloudMaterial = new THREE.MeshStandardMaterial({
+//             color: 0xffffff,
+//             transparent: true,
+//             opacity: 1,
+//             roughness: 0,
+//             metalness: 0
+//         });
+//         const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+//         planetGroup.add(clouds);
+//     }
     
-    // Add Great Red Spot for Jupiter
-    if (data.hasGreatRedSpot) {
-        const spotGeometry = new THREE.CircleGeometry(data.radius * 0.25, 32);
-        const spotMaterial = new THREE.MeshBasicMaterial({
-            color: 0x8b4513,
-            transparent: true,
-            opacity: 0.7,
-            side: THREE.DoubleSide
-        });
-        const spot = new THREE.Mesh(spotGeometry, spotMaterial);
-        spot.position.set(data.radius * 0.6, 0, data.radius * 0.3);
-        spot.rotation.x = Math.PI / 2;
-        planetGroup.add(spot);
-    }
+//     // Add Great Red Spot for Jupiter
+// if (data.hasGreatRedSpot) {
+//     const spotGeometry = new THREE.SphereGeometry(data.radius * 0.38, 64, 64);
+//     const spotMaterial = new THREE.MeshStandardMaterial({
+//         color: 0x8b4513,
+//         roughness: 1,
+//         metalness: 0,
+//         opacity: .5
+//     });
+
+//     const spot = new THREE.Mesh(spotGeometry, spotMaterial);
+
+//     // Position slightly above planet surface
+//     spot.position.set(data.radius * 0.65, 0, data.radius * .01);
+
+//     planetGroup.add(spot);
+// }
     
     // Create orbit ring (dotted effect using points)
     const orbitPoints = [];
-    const orbitSegments = 128;
+    const orbitSegments = 180;
     for (let i = 0; i <= orbitSegments; i++) {
         const angle = (i / orbitSegments) * Math.PI * 2;
         orbitPoints.push(
@@ -380,16 +409,20 @@ function createPlanet(key, data) {
     const orbitGeometry = new THREE.BufferGeometry();
     orbitGeometry.setAttribute('position', new THREE.Float32BufferAttribute(orbitPoints, 3));
     const orbitMaterial = new THREE.PointsMaterial({
-        color: 0x555555,
-        size: 1.5,
+        color: 0x656565,
+        size: 1,
         transparent: true,
-        opacity: 0.5
+        opacity: 0.3
     });
     const orbit = new THREE.Points(orbitGeometry, orbitMaterial);
     scene.add(orbit);
     
     // Solid orbit line (thin)
-    const orbitLineGeom = new THREE.RingGeometry(data.distance - 0.05, data.distance + 0.05, 128);
+    const orbitLineGeom = new THREE.RingGeometry(
+        data.distance - 0.5, 
+        data.distance + 0.05, 128
+    );
+
     const orbitLineMat = new THREE.MeshBasicMaterial({
         color: 0x333333,
         side: THREE.DoubleSide,
@@ -398,8 +431,9 @@ function createPlanet(key, data) {
     });
     const orbitLine = new THREE.Mesh(orbitLineGeom, orbitLineMat);
     orbitLine.rotation.x = -Math.PI / 2;
-    scene.add(orbitLine);
     
+    scene.add(orbitLine);
+
     // Create Saturn's rings - enhanced version
     if (data.hasRings) {
         // Multiple ring bands for realistic effect
@@ -412,7 +446,7 @@ function createPlanet(key, data) {
         ];
         
         ringBands.forEach(band => {
-            const ringGeom = new THREE.RingGeometry(band.inner, band.outer, 64);
+            const ringGeom = new THREE.RingGeometry(band.inner, band.outer, 128);
             const ringMat = new THREE.MeshBasicMaterial({
                 color: band.color,
                 side: THREE.DoubleSide,
@@ -420,7 +454,7 @@ function createPlanet(key, data) {
                 opacity: band.opacity
             });
             const ring = new THREE.Mesh(ringGeom, ringMat);
-            ring.rotation.x = -Math.PI / 2;
+            ring.rotation.x =Math.PI / 2.5;
             planetGroup.add(ring);
         });
     }
@@ -476,15 +510,16 @@ function updateLabels() {
     const sunX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
     const sunY = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
     
-    // Hide label if sun is behind camera
+    // Position label above sun (with offset)
+    const sunLabelOffset = 20;
     if (tempV.z < 1) {
         labels.sun.style.left = sunX + 'px';
-        labels.sun.style.top = (sunY - 60) + 'px';
+        labels.sun.style.top = (sunY - sunLabelOffset) + 'px';
         labels.sun.style.opacity = '1';
     } else {
         labels.sun.style.opacity = '0';
     }
-
+    
     // Update planet labels
     planetObjects.forEach(obj => {
         const key = obj.data.name.toLowerCase();
@@ -580,6 +615,10 @@ function showPlanetInfo(key, data) {
         <div class="info-item">
             <span class="label">Orbital Period:</span>
             <span class="value">${data.info.orbitalPeriod}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">Moon/s:</span>
+            <span class="value">${data.info.moon}</span>
         </div>
         <div class="fact">${data.info.fact}</div>
     `;
@@ -704,7 +743,7 @@ window.addEventListener('resize', () => {
 // Hide loading screen after a short delay
 setTimeout(() => {
     document.getElementById('loading').style.display = 'none';
-}, 1500);
+}, 0);
 
 // Start animation
 animate();
