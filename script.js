@@ -45,7 +45,7 @@ const PLANETS = {
             diameter: "12,742 km",
             orbitalPeriod: "365.25 days",
             fact: "Earth is the only planet known to support life - at least that we know of!",
-            moon: 1
+            moon: "1"
         },
         texture: 'Images/earth.jpg'
     },
@@ -60,7 +60,7 @@ const PLANETS = {
             diameter: "6,779 km",
             orbitalPeriod: "687 Earth days",
             fact: "Mars has the largest volcano in the solar system - Olympus Mons!",
-            moon: 2
+            moon: "2"
         },
         texture: 'Images/mars.jpg'
     },
@@ -76,7 +76,7 @@ const PLANETS = {
             diameter: "139,820 km",
             orbitalPeriod: "12 Earth years",
             fact: "Jupiter is the largest planet - more than twice as massive as all other planets combined!",
-            moon: [95,97]
+            moon: "95-97"
         },
         texture: 'Images/jupiter.jpg'
     },
@@ -94,7 +94,7 @@ const PLANETS = {
             diameter: "116,460 km",
             orbitalPeriod: "29 Earth years",
             fact: "Saturn's rings are made mostly of ice particles and rock debris!",
-            moon: [146,274]
+            moon: "146-274"
         },
         texture: 'Images/saturn.jpg'
     },
@@ -109,7 +109,7 @@ const PLANETS = {
             diameter: "50,724 km",
             orbitalPeriod: "84 Earth years",
             fact: "Uranus rotates on its side - like a rolling ball!",
-            moon: [27,29]
+            moon: "27-29"
         },
         texture: 'Images/uranus.jpg'
     },
@@ -124,7 +124,7 @@ const PLANETS = {
             diameter: "49,244 km",
             orbitalPeriod: "165 Earth years",
             fact: "Neptune has the strongest winds in the solar system - up to 2,100 km/h!",
-            moon:[14,16]
+            moon:"14-16"
         },
         texture: 'Images/neptune.jpg'   
     },
@@ -180,7 +180,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.minDistance = 20;
-controls.maxDistance = 400;
+controls.maxDistance = 250;
 
 // =============================================================================
 // CREATE SUN - Enhanced Version
@@ -281,6 +281,7 @@ function createStarfield() {
     });
     
     const stars = new THREE.Points(starsGeometry, starsMaterial);
+
     scene.add(stars);
 }
 
@@ -665,9 +666,23 @@ pauseBtn.addEventListener('click', (e) => {
 // Find Earth for Moon orbit reference
 let earthPlanet = null;
 
+//STARS BG
+const bgTextureLoader = new THREE.TextureLoader();
+const bgTexture = bgTextureLoader.load('Images/stars.jpg');
+const bgGeometry = new THREE.SphereGeometry(800, 64, 64);
+const bgMaterial = new THREE.MeshBasicMaterial({
+    map: bgTexture,
+    side: THREE.BackSide
+});
+
+const spaceBackground = new THREE.Mesh(bgGeometry, bgMaterial);
+scene.add(spaceBackground);
+
 function animate() {
     requestAnimationFrame(animate);
     
+    spaceBackground.position.copy(camera.position);
+
     // Only update planet positions if not paused
     if (!isPaused) {
         // First pass: update regular planets
@@ -690,6 +705,9 @@ function animate() {
             if (obj.data.name === "Earth") {
                 earthPlanet = obj;
             }
+
+            spaceBackground.rotation.y += 0.00005;
+            // stars.rotation.y += 0.00005;
         });
         
         // Second pass: update moons (orbits around parent planet)
@@ -743,7 +761,7 @@ window.addEventListener('resize', () => {
 // Hide loading screen after a short delay
 setTimeout(() => {
     document.getElementById('loading').style.display = 'none';
-}, 0);
+}, 5000);
 
 // Start animation
 animate();
